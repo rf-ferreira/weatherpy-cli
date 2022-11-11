@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [[ $(id -u) != 0 ]]; then
+	echo "Run the installation script as root."
+	exit 1
+fi
+
+pip install -r requirements.txt
+
+folder=$(pwd)
+
+cp -r $folder /usr/lib/weatherpy
+
+user=$(who | awk 'NR==1{print $1}')
+
+chown $user:$user /usr/lib/weatherpy/config.py
+
+echo "#!/bin/bash 
+
+/bin/python3 /usr/lib/weatherpy/weatherpy.py \$1 \$2" > /usr/bin/weather
+
+chmod +x /usr/bin/weather
+
+echo "#!/bin/bash 
+
+/bin/python3 /usr/lib/weatherpy/weatherpy.py \$1 \$2" > /usr/bin/clima
+
+chmod +x /usr/bin/clima
+
+echo "Installation completed. Run the \`weather\` command."
